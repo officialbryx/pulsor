@@ -42,6 +42,9 @@ python -m pip install .
 uvicorn app.main:app --reload
 ```
 
+The Docker runtime installs only the API and scikit-learn serving dependencies;
+XGBoost, SHAP, and pytest are available through the full local project install.
+
 ## API
 
 ### `GET /health`
