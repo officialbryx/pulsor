@@ -151,6 +151,9 @@ activemq-data/
 .env
 .envrc
 .venv
+
+# Trained model artifacts (regenerate with `make train` / `python -m ml.train`)
+models/*.joblib
 env/
 venv/
 ENV/

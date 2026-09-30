@@ -1,14 +1,19 @@
 import html
-import os
+import logging
 
 import requests
 
+from app.config import get_slack_webhook_url
+from ml.config import get_high_risk_threshold
+
+logger = logging.getLogger(__name__)
+
 
 def send_slack_alert(transaction: dict, result: dict) -> bool:
-    if not result["is_anomaly"] and result["risk_score"] <= 0.80:
+    if not result["is_anomaly"] and result["risk_score"] <= get_high_risk_threshold():
         return False
 
-    webhook_url = os.getenv("SLACK_WEBHOOK_URL")
+    webhook_url = get_slack_webhook_url()
     if not webhook_url:
         return False
 
@@ -29,5 +34,6 @@ def send_slack_alert(transaction: dict, result: dict) -> bool:
         response = requests.post(webhook_url, json=payload, timeout=5)
         response.raise_for_status()
     except requests.RequestException:
+        logger.warning("failed to send Slack alert for user_id=%s", transaction["user_id"])
         return False
     return True

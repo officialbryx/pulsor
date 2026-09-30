@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>FraudPulse — Test Dashboard</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --panel: #131a2e;
+    --border: #232c47;
+    --text: #e7ebf7;
+    --muted: #8b93ad;
+    --accent: #5b8cff;
+    --green: #2fbf71;
+    --amber: #f2b134;
+    --red: #ef4444;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: radial-gradient(circle at top, #131a2e 0%, #0b1020 60%);
+    color: var(--text);
+    min-height: 100vh;
+  }
+  header {
+    padding: 28px 32px 8px;
+  }
+  header h1 { margin: 0 0 4px; font-size: 26px; }
+  header p { margin: 0; color: var(--muted); }
+  .disclaimer {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(242, 177, 52, 0.12);
+    border: 1px solid rgba(242, 177, 52, 0.4);
+    color: var(--amber);
+    font-size: 12px;
+  }
+  main {
+    display: grid;
+    grid-template-columns: minmax(320px, 420px) 1fr;
+    gap: 20px;
+    padding: 16px 32px 40px;
+    align-items: start;
+  }
+  @media (max-width: 900px) {
+    main { grid-template-columns: 1fr; }
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+  }
+  .panel h2 {
+    margin: 0 0 14px;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+  label {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    margin: 12px 0 4px;
+  }
+  input, select {
+    width: 100%;
+    padding: 9px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: #0e1526;
+    color: var(--text);
+    font-size: 14px;
+  }
+  input:focus, select:focus { outline: 2px solid var(--accent); }
+  .row { display: flex; gap: 10px; }
+  .row > div { flex: 1; }
+  .actions { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+  button {
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  button.primary { background: var(--accent); color: white; }
+  button.secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .examples { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+  .examples button { font-size: 12px; padding: 6px 10px; }
+  .placeholder { color: var(--muted); font-size: 14px; }
+  .score-badge {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 14px 18px;
+    border-radius: 12px;
+    font-size: 34px;
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+  .score-badge span { font-size: 13px; font-weight: 500; color: var(--muted); }
+  .badge-low { background: rgba(47, 191, 113, 0.14); color: var(--green); }
+  .badge-medium { background: rgba(242, 177, 52, 0.14); color: var(--amber); }
+  .badge-high { background: rgba(239, 68, 68, 0.14); color: var(--red); }
+  .components { display: flex; gap: 24px; margin: 10px 0 18px; flex-wrap: wrap; }
+  .component { min-width: 180px; }
+  .component .label { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  .bar-track { height: 8px; border-radius: 999px; background: #0e1526; overflow: hidden; }
+  .bar-fill { height: 100%; background: var(--accent); }
+  ul.factors { margin: 0; padding-left: 18px; }
+  ul.factors li { margin-bottom: 4px; }
+  table.contrib { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13px; }
+  table.contrib th, table.contrib td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  table.contrib th { color: var(--muted); font-weight: 500; }
+  .dir-up { color: var(--red); }
+  .dir-down { color: var(--green); }
+  footer { padding: 0 32px 32px; color: var(--muted); font-size: 13px; }
+  footer a { color: var(--accent); }
+  .error { color: var(--red); font-size: 13px; margin-top: 10px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>FraudPulse</h1>
+  <p>Real-time payment transaction anomaly detection — interactive test dashboard.</p>
+  <span class="disclaimer">Synthetic model for demonstration only — not a production fraud detector.</span>
+</header>
+
+<main>
+  <section class="panel">
+    <h2>Transaction</h2>
+    <label for="user_id">User ID</label>
+    <input id="user_id" value="user-123" />
+
+    <div class="row">
+      <div>
+        <label for="amount">Amount (USD)</label>
+        <input id="amount" type="number" step="0.01" value="129.95" />
+      </div>
+      <div>
+        <label for="country">Country code</label>
+        <input id="country" value="US" maxlength="3" />
+      </div>
+    </div>
+
+    <label for="merchant_category">Merchant category</label>
+    <select id="merchant_category">
+      <option value="groceries">groceries</option>
+      <option value="food">food</option>
+      <option value="retail">retail</option>
+      <option value="travel">travel</option>
+      <option value="electronics">electronics</option>
+      <option value="cryptocurrency">cryptocurrency</option>
+      <option value="gambling">gambling</option>
+      <option value="wire_transfer">wire_transfer</option>
+      <option value="cash_advance">cash_advance</option>
+    </select>
+
+    <label for="timestamp">Timestamp</label>
+    <input id="timestamp" type="datetime-local" />
+
+    <label for="api_key">API key <span class="placeholder">(only if the server requires one)</span></label>
+    <input id="api_key" placeholder="X-API-Key" />
+
+    <div class="examples">
+      <button class="secondary" id="fill-normal" type="button">Load normal example</button>
+      <button class="secondary" id="fill-suspicious" type="button">Load suspicious example</button>
+    </div>
+
+    <div class="actions">
+      <button class="primary" id="score-btn" type="button">Score transaction</button>
+      <button class="secondary" id="explain-btn" type="button">Explain result</button>
+    </div>
+    <div class="error" id="error"></div>
+  </section>
+
+  <section class="panel">
+    <h2>Result</h2>
+    <div id="result">
+      <p class="placeholder">Submit a transaction to see its risk score, or click "Load suspicious example" for a quick demo.</p>
+    </div>
+
+    <div id="explanation"></div>
+  </section>
+</main>
+
+<footer>
+  Full API reference: <a href="/docs">/docs</a> (Swagger UI) · <a href="/redoc">/redoc</a> ·
+  See <code>docs/api.md</code> in the repository for curl examples.
+</footer>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+
+  function nowLocalInputValue() {
+    return formatForDateTimeLocalInput(new Date());
+  }
+  $("timestamp").value = nowLocalInputValue();
+
+  function formatForDateTimeLocalInput(date) {
+    const pad = (n) => String(n).padStart(2, "0");
+    return (
+      `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` +
+      `T${pad(date.getHours())}:${pad(date.getMinutes())}`
+    );
+  }
+
+  // Builds a local datetime-input value that corresponds to a specific UTC
+  // hour today, so the example transactions land on the intended hour
+  // regardless of the browser's own timezone.
+  function utcHourToLocalInputValue(utcHour) {
+    const now = new Date();
+    const target = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), utcHour, 0, 0)
+    );
+    return formatForDateTimeLocalInput(target);
+  }
+
+  $("fill-normal").addEventListener("click", () => {
+    $("user_id").value = "user-1001";
+    $("amount").value = "42.50";
+    $("country").value = "US";
+    $("merchant_category").value = "groceries";
+    $("timestamp").value = utcHourToLocalInputValue(14);
+  });
+
+  $("fill-suspicious").addEventListener("click", () => {
+    $("user_id").value = "user-2002";
+    $("amount").value = "6500.00";
+    $("country").value = "RU";
+    $("merchant_category").value = "wire_transfer";
+    $("timestamp").value = utcHourToLocalInputValue(3);
+  });
+
+  function currentTransaction() {
+    return {
+      user_id: $("user_id").value || "user-123",
+      amount: parseFloat($("amount").value),
+      merchant_category: $("merchant_category").value,
+      country: $("country").value.toUpperCase(),
+      timestamp: new Date($("timestamp").value).toISOString(),
+    };
+  }
+
+  function headers() {
+    const h = { "Content-Type": "application/json" };
+    const key = $("api_key").value.trim();
+    if (key) h["X-API-Key"] = key;
+    return h;
+  }
+
+  function badgeClass(score) {
+    if (score >= 0.8) return "badge-high";
+    if (score >= 0.5) return "badge-medium";
+    return "badge-low";
+  }
+
+  function renderResult(result) {
+    const pct = (x) => Math.round(x * 100);
+    $("result").innerHTML = `
+      <div class="score-badge ${badgeClass(result.risk_score)}">
+        ${result.risk_score.toFixed(2)} <span>risk score · ${result.is_anomaly ? "flagged as anomaly" : "looks normal"}</span>
+      </div>
+      <div class="components">
+        <div class="component">
+          <div class="label">Anomaly score (Isolation Forest): ${pct(result.components.anomaly_score)}%</div>
+          <div class="bar-track"><div class="bar-fill" style="width:${pct(result.components.anomaly_score)}%"></div></div>
+        </div>
+        <div class="component">
+          <div class="label">Fraud probability (XGBoost): ${pct(result.components.fraud_probability)}%</div>
+          <div class="bar-track"><div class="bar-fill" style="width:${pct(result.components.fraud_probability)}%"></div></div>
+        </div>
+      </div>
+      <h2>Risk factors</h2>
+      ${result.risk_factors.length
+        ? `<ul class="factors">${result.risk_factors.map((f) => `<li>${f}</li>`).join("")}</ul>`
+        : `<p class="placeholder">No specific risk factors triggered.</p>`}
+      <p class="placeholder">Model version ${result.model_version}</p>
+    `;
+  }
+
+  function renderExplanation(explanation) {
+    const rows = explanation.contributions
+      .map(
+        (c) => `<tr>
+          <td>${c.feature}</td>
+          <td>${c.value.toFixed(3)}</td>
+          <td>${c.shap_value.toFixed(3)}</td>
+          <td class="${c.direction === "increases_risk" ? "dir-up" : "dir-down"}">${c.direction.replace("_", " ")}</td>
+        </tr>`
+      )
+      .join("");
+    $("explanation").innerHTML = `
+      <h2>Why? (SHAP feature contributions)</h2>
+      <table class="contrib">
+        <thead><tr><th>Feature</th><th>Value</th><th>SHAP value</th><th>Effect</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <p class="placeholder">Base value (average model output): ${explanation.base_value.toFixed(3)}</p>
+    `;
+  }
+
+  async function callApi(path) {
+    $("error").textContent = "";
+    const button = path === "/score" ? $("score-btn") : $("explain-btn");
+    button.disabled = true;
+    try {
+      const response = await fetch(path, {
+        method: "POST",
+        headers: headers(),
+        body: JSON.stringify(currentTransaction()),
+      });
+      const body = await response.json();
+      if (!response.ok) {
+        throw new Error(body.detail ? JSON.stringify(body.detail) : `Request failed (${response.status})`);
+      }
+      return body;
+    } finally {
+      button.disabled = false;
+    }
+  }
+
+  $("score-btn").addEventListener("click", async () => {
+    try {
+      const result = await callApi("/score");
+      renderResult(result);
+      $("explanation").innerHTML = "";
+    } catch (err) {
+      $("error").textContent = err.message;
+    }
+  });
+
+  $("explain-btn").addEventListener("click", async () => {
+    try {
+      const explanation = await callApi("/explain");
+      renderExplanation(explanation);
+    } catch (err) {
+      $("error").textContent = err.message;
+    }
+  });
+</script>
+</body>
+</html>
